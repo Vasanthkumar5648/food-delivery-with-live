@@ -14,9 +14,56 @@ load_dotenv()
 API_KEY = os.getenv("GOOGLE_MAPS_API_KEY")
 gmaps = googlemaps.Client(key=API_KEY)
 
-# Load model
-model = tf.keras.models.load_model("model.h5")
+import streamlit as st
+import pandas as pd
+import numpy as np
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import train_test_split
+import time
 
+# Constants
+R = 6371  # Earth's radius in km
+
+# Function to convert degrees to radians
+def deg_to_rad(degrees):
+    return degrees * (np.pi/180)
+
+# Haversine formula to calculate distance
+def calculate_distance(lat1, lon1, lat2, lon2):
+    d_lat = deg_to_rad(lat2-lat1)
+    d_lon = deg_to_rad(lon2-lon1)
+    a = np.sin(d_lat/2)**2 + np.cos(deg_to_rad(lat1)) * np.cos(deg_to_rad(lat2)) * np.sin(d_lon/2)**2
+    c = 2 * np.arctan2(np.sqrt(a), np.sqrt(1-a))
+    return R * c
+
+# Load data and train model
+df = pd.read_csv('https://raw.github.com/Vasanthkumar5648/food-delivery-with-live/main/deliverytime.txt')
+df['distance'] = df.apply(lambda row: calculate_distance(
+            row['Restaurant_latitude'],
+            row['Restaurant_longitude'],
+            row['Delivery_location_latitude'],
+            row['Delivery_location_longitude']
+        ), axis=1)
+X = df[["Delivery_person_Age", "Delivery_person_Ratings", "distance"]]
+y = df["Time_taken(min)"]
+        
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+model = RandomForestRegressor(n_estimators=50, random_state=42)
+
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+import numpy as np
+
+model = Sequential()
+model.add(Dense(64, input_dim=4, activation='relu'))
+model.add(Dense(32, activation='relu'))
+model.add(Dense(1))
+model.compile(optimizer='adam', loss='mean_squared_error')
+model.fit(x, y, epochs=5, batch_size=32)
+
+model.save("model.h5")
+
+model.fit(X_train, y_train)
 # Cache Google API calls
 @lru_cache(maxsize=1000)
 def get_distance_duration_cached(origin_lat, origin_lng, dest_lat, dest_lng):
