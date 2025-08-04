@@ -1,4 +1,8 @@
 streamlit==1.35.0
+protobuf 
+tensorflow
+streamlit
+scikit-learn
 googlemaps==4.10.0
 tensorflow>=2.14,<2.21
 folium==0.16.0
