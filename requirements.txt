@@ -1,0 +1,9 @@
+streamlit==1.35.0
+googlemaps==4.10.0
+tensorflow==2.15.0
+folium==0.16.0
+streamlit-folium==0.17.0
+python-dotenv==1.0.1
+geocoder==1.38.1
+numpy==1.26.4
+pandas==2.2.2
