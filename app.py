@@ -59,7 +59,7 @@ model.add(Dense(64, input_dim=4, activation='relu'))
 model.add(Dense(32, activation='relu'))
 model.add(Dense(1))
 model.compile(optimizer='adam', loss='mean_squared_error')
-model.fit(x, y, epochs=5, batch_size=32)
+model.fit(X, y, epochs=5, batch_size=32)
 
 model.save("model.h5")
 
